@@ -1,357 +1,486 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { 
+  Search, Repeat, BookOpen, Monitor, PenTool, 
+  Dumbbell, Home as HomeIcon, ShieldCheck, 
+  Banknote, Star, Lock, Camera, Wrench, Menu, X, ArrowRight,
+  CheckCircle2, Bell, MessageSquare, ArrowRightLeft, MapPin
+} from 'lucide-react';
 import './index.css';
-import './detail.css';
-import logoImg from '../logo.png';
 
-// SVG Icons
-const ShieldIcon = () => (
-  <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-  </svg>
-);
+// Data
+const CATEGORIES = [
+  { name: 'Academic', icon: BookOpen },
+  { name: 'Books', icon: BookOpen },
+  { name: 'Drafting', icon: PenTool },
+  { name: 'Electronics', icon: Monitor },
+  { name: 'Lab Equipment', icon: BookOpen },
+  { name: 'Sports', icon: Dumbbell },
+  { name: 'Hostel Essentials', icon: HomeIcon },
+  { name: 'Photography', icon: Camera },
+  { name: 'Tools', icon: Wrench },
+];
 
-const HomeIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-    <polyline points="9 22 9 12 15 12 15 22"></polyline>
-  </svg>
-);
-
-const ListIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line>
-  </svg>
-);
-
-const MessageIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
-  </svg>
-);
-
-const SettingsIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-  </svg>
-);
-
-const SearchIcon = () => (
-  <svg className="search-icon" viewBox="0 0 24 24" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="11" cy="11" r="8" />
-    <line x1="21" y1="21" x2="16.65" y2="16.65" />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-const StarIcon = () => (
-  <svg className="meta-icon" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-  </svg>
-);
-
-const MapPinIcon = () => (
-  <svg className="meta-icon" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-    <circle cx="12" cy="10" r="3" />
-  </svg>
-);
-
-const CloseIcon = () => (
-  <svg className="close-icon" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="18" y1="6" x2="6" y2="18" />
-    <line x1="6" y1="6" x2="18" y2="18" />
-  </svg>
-);
-
-const ArrowLeftIcon = () => (
-  <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" fill="none" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <line x1="19" y1="12" x2="5" y2="12" />
-    <polyline points="12 19 5 12 12 5" />
-  </svg>
-);
-
-const VerifiedIcon = () => (
-  <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" stroke="none">
-    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-    <path d="M9 12l2 2 4-4" stroke="#050505" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-  </svg>
-);
-
-// Types
-type Item = {
-  id: string;
-  title: string;
-  description: string;
-  image: string;
-  owner: {
-    name: string;
-    trustScore: number;
-  };
-  condition: string;
-  location: string;
-  available: boolean;
-};
-
-// Dummy Data
-const ITEMS: Item[] = [
+const POPULAR_ITEMS = [
   {
-    id: '1',
-    title: 'Drafting Board & T-Square',
-    description: 'Standard size drafting board with T-square. Perfect for first-year engineering students. Has a few scratches but perfectly functional.',
-    image: 'https://images.unsplash.com/photo-1603484477859-abe6a73f9366?auto=format&fit=crop&q=80&w=600',
-    owner: { name: 'Alex Johnson', trustScore: 98 },
-    condition: 'Good Condition',
-    location: 'North Campus',
-    available: true,
-  },
-  {
-    id: '2',
-    title: 'Scientific Calculator (FX-991EX)',
-    description: 'Barely used calculator, allowed in most university exams. Don\'t buy a new one for just one semester! Includes the sliding hard case.',
-    image: 'https://images.unsplash.com/photo-1574607407408-1e681c46041d?auto=format&fit=crop&q=80&w=600',
-    owner: { name: 'Sam Rivera', trustScore: 100 },
+    id: 1,
+    title: 'Engineering Drafter',
     condition: 'Like New',
-    location: 'Library Area',
-    available: true,
+    price: '₹20/day',
+    location: 'Campus North',
+    owner: 'Rahul',
+    rating: 4.8,
+    image: 'https://images.unsplash.com/photo-1603484477859-abe6a73f9366?auto=format&fit=crop&w=400&q=80',
   },
   {
-    id: '3',
-    title: 'Chemistry Lab Coat & Goggles',
-    description: 'Size Medium. Cleaned and ready to use. Only used for one semester of Chem 101. No chemical stains.',
-    image: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?auto=format&fit=crop&q=80&w=600',
-    owner: { name: 'Jamie Doe', trustScore: 85 },
-    condition: 'Fair Use',
+    id: 2,
+    title: 'Scientific Calculator',
+    condition: 'Good',
+    price: '₹15/day',
+    location: 'Library Quad',
+    owner: 'Priya',
+    rating: 4.9,
+    image: 'https://images.unsplash.com/photo-1574607383476-f517f260d30b?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 3,
+    title: 'Engineering Mathematics',
+    condition: 'Good',
+    price: 'Free to borrow',
     location: 'South Dorms',
-    available: false,
+    owner: 'Amit',
+    rating: 5.0,
+    image: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 4,
+    title: 'Lab Coat (Medium)',
+    condition: 'Like New',
+    price: '₹10/day',
+    location: 'Science Block',
+    owner: 'Sneha',
+    rating: 4.7,
+    image: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?auto=format&fit=crop&w=400&q=80',
   }
 ];
 
-function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [items, setItems] = useState<Item[]>(ITEMS);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
-  const [activeTab, setActiveTab] = useState('Home');
+const FREE_ITEMS = [
+  { id: 101, title: 'Calculus Textbook', category: 'Books', image: 'https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=400&q=80' },
+  { id: 102, title: 'Mini Drafter', category: 'Drafting', image: 'https://images.unsplash.com/photo-1622322977797-1725514065ea?auto=format&fit=crop&w=400&q=80' },
+  { id: 103, title: 'Lab Coat', category: 'Lab Equipment', image: 'https://images.unsplash.com/photo-1581093458791-9f3c3900df4b?auto=format&fit=crop&w=400&q=80' },
+  { id: 104, title: 'Sports Equipment', category: 'Sports', image: 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=400&q=80' },
+];
 
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
+function App() {
+  const [scrolled, setScrolled] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const filteredItems = items.filter(item => 
-    item.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.description.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  if (isLoading) {
-    return (
-      <div className="loader-container">
-        <svg className="infinity-loader" viewBox="0 0 100 50">
-          <defs>
-            <linearGradient id="blueGreenGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#2563eb" />
-              <stop offset="100%" stopColor="#10b981" />
-            </linearGradient>
-          </defs>
-          <path 
-            d="M 50,25 C 30,5 10,5 10,25 C 10,45 30,45 50,25 C 70,5 90,5 90,25 C 90,45 70,45 50,25 Z" 
-            className="infinity-path"
-          />
-        </svg>
-      </div>
-    );
-  }
-
   return (
-    <div className="app-container">
-      <header className="header">
-        <div className="logo">
-          <img src={logoImg} alt="Swapify Logo" className="logo-img" />
-          Swapify
-        </div>
-        <div className="controls">
-          <div className="search-wrapper">
-            <SearchIcon />
-            <input 
-              type="text" 
-              placeholder="Search available items..." 
-              className="search-input"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+    <div className="landing-page">
+      {/* NAVBAR */}
+      <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+        <div className="nav-container">
+          <div className="nav-logo">
+            <div className="logo-icon">
+              <ArrowRightLeft strokeWidth={2.5} size={24} />
+            </div>
+            <span className="logo-text">SWAPIFY</span>
           </div>
-          <button className="btn btn-primary" onClick={() => setIsModalOpen(true)}>
-            <PlusIcon />
-            Post Item
+          
+          <div className="nav-center desktop-only">
+            <a href="#explore">Explore</a>
+            <a href="#how-it-works">How It Works</a>
+            <a href="#categories">Categories</a>
+            <a href="#trust">Trust & Safety</a>
+          </div>
+
+          <div className="nav-right desktop-only">
+            <a href="#" className="login-link">Log In</a>
+            <button className="btn btn-primary">Get Started</button>
+          </div>
+
+          <button 
+            className="mobile-menu-btn mobile-only"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
         </div>
-      </header>
+      </nav>
 
-      <div className="layout-content">
-        <aside className="sidebar">
-          <nav className="sidebar-nav">
-             <a href="#" className={`sidebar-link ${activeTab === 'Home' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Home'); setSelectedItem(null); }}>
-               <HomeIcon /> Home
-             </a>
-             <a href="#" className={`sidebar-link ${activeTab === 'Categories' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Categories'); setSelectedItem(null); }}>
-               <ListIcon /> Categories
-             </a>
-             <a href="#" className={`sidebar-link ${activeTab === 'Messages' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Messages'); setSelectedItem(null); }}>
-               <MessageIcon /> Messages
-             </a>
-             <a href="#" className={`sidebar-link ${activeTab === 'Settings' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('Settings'); setSelectedItem(null); }}>
-               <SettingsIcon /> Settings
-             </a>
-          </nav>
-        </aside>
-
-        <main className="main-content">
-        {selectedItem ? (
-          <div className="detail-view">
-            <button className="back-btn" onClick={() => setSelectedItem(null)}>
-              <ArrowLeftIcon /> Back to items
-            </button>
-            
-            <div className="detail-content">
-              <div className="detail-image-wrapper">
-                <img src={selectedItem.image} alt={selectedItem.title} className="detail-image" />
-                <span className={`status-badge ${selectedItem.available ? 'status-available' : 'status-rented'}`}>
-                  {selectedItem.available ? 'Available' : 'Rented out'}
-                </span>
+      {/* HERO SECTION */}
+      <header className="hero-section">
+        <div className="hero-container">
+          <div className="hero-content">
+            <div className="hero-badge">
+              THE STUDENT REUSE MARKETPLACE
+            </div>
+            <h1 className="hero-title">
+              <span className="highlight-blue">Find what you need.</span><br />
+              <span className="highlight-green">Share what you don't.</span>
+            </h1>
+            <p className="hero-subtitle">
+              Borrow, rent, and reuse useful items from students around you instead of buying things you'll only need for a short time.
+            </p>
+            <div className="hero-actions">
+              <button className="btn btn-primary btn-large">Explore Items</button>
+              <button className="btn btn-secondary btn-large">List an Item</button>
+            </div>
+            <p className="hero-footer-text">Built for students • Designed for reuse</p>
+          </div>
+          
+          <div className="hero-visual desktop-only">
+            <div className="visual-composition">
+              {/* Central Logo Symbol */}
+              <div className="central-symbol">
+                <ArrowRightLeft size={48} color="white" />
               </div>
               
-              <div className="detail-info">
-                <h2 className="detail-title">{selectedItem.title}</h2>
-                <div className="detail-meta">
-                  <div className="meta-pill">
-                    <StarIcon /> {selectedItem.condition}
-                  </div>
-                  <div className="meta-pill">
-                    <MapPinIcon /> {selectedItem.location}
-                  </div>
-                </div>
-                
-                <p className="detail-description">{selectedItem.description}</p>
-                
-                <div className="detail-owner-card">
-                  <div className="detail-owner-info">
-                    <div className="detail-avatar">{selectedItem.owner.name.charAt(0)}</div>
-                    <div className="user-details">
-                      <span className="user-name">{selectedItem.owner.name}</span>
-                      <span className="trust-score">
-                        <VerifiedIcon /> Trust Score: {selectedItem.owner.trustScore}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-                
-                <button className={`btn btn-primary detail-action-btn`} disabled={!selectedItem.available}>
-                  {selectedItem.available ? 'Request to Borrow' : 'Currently Unavailable'}
-                </button>
+              {/* Floating Items */}
+              <div className="orbit-item item-1">
+                <img src="https://images.unsplash.com/photo-1603484477859-abe6a73f9366?auto=format&fit=crop&w=150&q=80" alt="Drafter" />
+              </div>
+              <div className="orbit-item item-2">
+                <img src="https://images.unsplash.com/photo-1574607383476-f517f260d30b?auto=format&fit=crop&w=150&q=80" alt="Calculator" />
+              </div>
+              <div className="orbit-item item-3">
+                <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=150&q=80" alt="Textbooks" />
+              </div>
+              <div className="orbit-item item-4">
+                <img src="https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&w=150&q=80" alt="Headphones" />
               </div>
             </div>
           </div>
-        ) : activeTab !== 'Home' ? (
-          <div className="empty-state">
-            <h2 style={{ color: 'var(--primary)', marginBottom: '1rem' }}>{activeTab}</h2>
-            <p style={{ color: 'var(--text-muted)' }}>This section is currently under construction. Check back soon!</p>
+        </div>
+      </header>
+
+      {/* HERO SEARCH */}
+      <section className="search-section">
+        <div className="search-container">
+          <h2>What are you looking for?</h2>
+          <div className={`main-search-wrapper ${searchFocused ? 'focused' : ''}`}>
+            <Search className="search-icon-inside" size={24} />
+            <input 
+              type="text" 
+              placeholder="Search drafters, calculators, books, electronics..." 
+              onFocus={() => setSearchFocused(true)}
+              onBlur={() => setSearchFocused(false)}
+            />
+            <button className="btn btn-primary search-submit">Search</button>
           </div>
-        ) : (
-          <>
-        <div className="items-grid">
-          {filteredItems.map(item => (
-            <div key={item.id} className="item-card">
-              <div className="item-image-wrapper">
-                <img src={item.image} alt={item.title} className="item-image" />
-                <span className={`status-badge ${item.available ? 'status-available' : 'status-rented'}`}>
-                  {item.available ? 'Available' : 'Rented out'}
-                </span>
+          <div className="popular-searches">
+            <span className="ps-label">Popular searches:</span>
+            <div className="ps-tags">
+              <a href="#">Drafter</a>
+              <a href="#">Calculator</a>
+              <a href="#">Engineering Books</a>
+              <a href="#">Lab Equipment</a>
+              <a href="#">Sports Equipment</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* SOCIAL PROOF */}
+      <section className="social-proof-strip">
+        <div className="strip-container">
+          <span className="strip-title">Built for student communities</span>
+          <div className="strip-items">
+            <div className="strip-item"><CheckCircle2 size={18} /> Verified Students</div>
+            <div className="strip-item"><CheckCircle2 size={18} /> Community Ratings</div>
+            <div className="strip-item"><CheckCircle2 size={18} /> Transparent Pricing</div>
+            <div className="strip-item"><CheckCircle2 size={18} /> Easy Requests</div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROBLEM SECTION */}
+      <section className="problem-section section-padding">
+        <div className="section-header center">
+          <h2 className="section-title">Why buy something you'll only use for a few weeks?</h2>
+        </div>
+        <div className="cards-grid-3">
+          <div className="problem-card">
+            <div className="p-card-icon">1</div>
+            <h3>Need it temporarily</h3>
+            <p>Maybe you need a drafter for one semester.</p>
+          </div>
+          <div className="problem-card">
+            <div className="p-card-icon">2</div>
+            <h3>Already have it</h3>
+            <p>Someone else on campus may already own one.</p>
+          </div>
+          <div className="problem-card">
+            <div className="p-card-icon">3</div>
+            <h3>Give it another life</h3>
+            <p>Instead of letting useful items sit unused, share them with someone who needs them.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SOLUTION SECTION */}
+      <section className="solution-section section-padding">
+        <div className="section-header center">
+          <h2 className="section-title">One platform. A smarter way to reuse.</h2>
+        </div>
+        <div className="solution-comparison">
+          <div className="s-flow old-way">
+            <div className="s-step">BUY</div>
+            <ArrowRight className="s-arrow" />
+            <div className="s-step">USE</div>
+            <ArrowRight className="s-arrow" />
+            <div className="s-step bad">STORE</div>
+          </div>
+          <div className="s-vs">versus</div>
+          <div className="s-flow new-way">
+            <div className="s-step good">FIND</div>
+            <ArrowRight className="s-arrow" />
+            <div className="s-step good">BORROW / RENT</div>
+            <ArrowRight className="s-arrow" />
+            <div className="s-step good">RETURN</div>
+            <ArrowRight className="s-arrow" />
+            <div className="s-step best">REUSE</div>
+          </div>
+        </div>
+      </section>
+
+      {/* HOW IT WORKS */}
+      <section id="how-it-works" className="how-it-works-section section-padding">
+        <div className="section-header center">
+          <h2 className="section-title">How SWAPIFY works</h2>
+        </div>
+        <div className="cards-grid-4">
+          <div className="hiw-card">
+            <div className="hiw-number">01</div>
+            <h3>SEARCH</h3>
+            <p>Find the item you need.</p>
+          </div>
+          <div className="hiw-card">
+            <div className="hiw-number">02</div>
+            <h3>COMPARE</h3>
+            <p>Check price, condition, availability, and owner ratings.</p>
+          </div>
+          <div className="hiw-card">
+            <div className="hiw-number">03</div>
+            <h3>REQUEST</h3>
+            <p>Send a borrow or rental request.</p>
+          </div>
+          <div className="hiw-card">
+            <div className="hiw-number">04</div>
+            <h3>RETURN</h3>
+            <p>Use it and return it when you're done.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* FEATURED CATEGORIES */}
+      <section id="categories" className="categories-section section-padding bg-surface">
+        <div className="section-header center">
+          <h2 className="section-title">Everything students need</h2>
+        </div>
+        <div className="category-scroll-container">
+          <div className="category-cards">
+            {CATEGORIES.map((cat, i) => (
+              <div key={i} className="category-card">
+                <div className="category-icon-wrapper">
+                  <cat.icon size={24} />
+                </div>
+                <h3>{cat.name}</h3>
               </div>
-              
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* POPULAR ITEMS PREVIEW */}
+      <section id="explore" className="popular-section section-padding">
+        <div className="section-header">
+          <div>
+            <h2 className="section-title">Things students are looking for</h2>
+            <p className="section-subtitle">Discover useful items available around your campus.</p>
+          </div>
+        </div>
+        <div className="items-grid">
+          {POPULAR_ITEMS.map((item) => (
+            <div key={item.id} className="item-card">
+              <div className="item-image-container">
+                <img src={item.image} alt={item.title} />
+              </div>
               <div className="item-content">
                 <h3 className="item-title">{item.title}</h3>
-                
+                <div className="item-price">{item.price}</div>
                 <div className="item-meta">
-                  <div className="meta-pill">
-                    <StarIcon /> {item.condition}
-                  </div>
-                  <div className="meta-pill">
-                    <MapPinIcon /> {item.location}
-                  </div>
+                  <span className="item-condition">{item.condition}</span>
+                  <span className="item-availability">Available</span>
                 </div>
-
-                <p className="item-description">{item.description}</p>
-                
                 <div className="item-footer">
-                  <div className="user-profile">
-                    <div className="avatar">
-                      {item.owner.name.charAt(0)}
-                    </div>
-                    <div className="user-details">
-                      <span className="user-name">{item.owner.name}</span>
-                      <span className="trust-score">
-                        <VerifiedIcon /> Trust Score: {item.owner.trustScore}
-                      </span>
-                    </div>
-                  </div>
-                  <button className="btn btn-secondary btn-request" onClick={() => setSelectedItem(item)}>
-                    View Details
-                  </button>
+                  <div className="item-location"><MapPin size={14}/> {item.location}</div>
+                  <div className="item-rating"><Star size={14} fill="currentColor"/> {item.rating}</div>
                 </div>
               </div>
             </div>
           ))}
         </div>
-        </>
-        )}
-        </main>
-      </div>
+        <div className="center mt-4">
+          <button className="btn btn-outline btn-large">Explore all items</button>
+        </div>
+      </section>
 
-      {/* Post Item Modal */}
-      {isModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2>Post a new item</h2>
-              <button className="close-btn" onClick={() => setIsModalOpen(false)}>
-                <CloseIcon />
-              </button>
+      {/* FREE TO BORROW */}
+      <section className="free-section section-padding">
+        <div className="free-container">
+          <div className="free-header">
+            <h2 className="section-title">Some things are better shared.</h2>
+            <p className="section-subtitle">Find students willing to lend useful items for free.</p>
+            <button className="btn btn-primary mt-4">Explore free items</button>
+          </div>
+          <div className="free-scroll-container">
+            <div className="free-grid">
+              {FREE_ITEMS.map((item) => (
+                <div key={item.id} className="free-card">
+                  <img src={item.image} alt={item.title} />
+                  <div className="free-card-content">
+                    <span className="free-badge">FREE</span>
+                    <h4>{item.title}</h4>
+                    <p>{item.category}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); setIsModalOpen(false); }}>
-              <div className="form-group">
-                <label className="form-label">Item Title</label>
-                <input type="text" className="form-control" placeholder="What are you sharing?" required />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Description & Details</label>
-                <textarea className="form-control" rows={4} placeholder="Describe the item, its condition, and any rules for borrowing..." required></textarea>
-              </div>
-              <div className="form-group">
-                <label className="form-label">Condition</label>
-                <select className="form-control">
-                  <option>Brand New</option>
-                  <option>Like New</option>
-                  <option>Good Condition</option>
-                  <option>Fair Use</option>
-                </select>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2.5rem' }}>
-                <button type="button" className="btn btn-secondary" onClick={() => setIsModalOpen(false)}>Cancel</button>
-                <button type="submit" className="btn btn-primary">Publish Item</button>
-              </div>
-            </form>
           </div>
         </div>
-      )}
+      </section>
+
+      {/* SMART REQUEST FEATURE */}
+      <section className="request-section section-padding bg-surface">
+        <div className="request-container">
+          <div className="request-content">
+            <h2 className="section-title">Can't find what you need?</h2>
+            <p className="section-subtitle">Create a request and let students know what you're looking for.</p>
+            
+            <div className="request-example">
+              <div className="re-label">Looking for:</div>
+              <div className="re-text">"Engineering drafter for 2 weeks"</div>
+            </div>
+            
+            <button className="btn btn-primary btn-large">Create a Request</button>
+            <p className="re-subtext mt-2">When someone lists a matching item, you'll be notified.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* TRUST SECTION */}
+      <section id="trust" className="trust-section section-padding">
+        <div className="section-header center">
+          <h2 className="section-title">Built around trust</h2>
+        </div>
+        <div className="trust-grid">
+          <div className="trust-feature">
+            <div className="trust-icon"><ShieldCheck size={28} /></div>
+            <h3>VERIFIED STUDENTS</h3>
+            <p>Know who you're dealing with.</p>
+          </div>
+          <div className="trust-feature">
+            <div className="trust-icon"><Star size={28} /></div>
+            <h3>RATINGS & REVIEWS</h3>
+            <p>See feedback from other students.</p>
+          </div>
+          <div className="trust-feature">
+            <div className="trust-icon"><Banknote size={28} /></div>
+            <h3>TRANSPARENT PRICING</h3>
+            <p>Know the cost before you request.</p>
+          </div>
+          <div className="trust-feature">
+            <div className="trust-icon"><Lock size={28} /></div>
+            <h3>SECURE REQUESTS</h3>
+            <p>Keep rentals organized from request to return.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* SUSTAINABILITY SECTION */}
+      <section className="sustainability-section section-padding">
+        <div className="sus-container">
+          <div className="sus-content">
+            <h2 className="section-title">Reuse more. Waste less.</h2>
+            <p className="section-subtitle">Every item shared gives something useful another chance to be used.</p>
+          </div>
+          <div className="stats-container">
+            <div className="stat-card">
+              <div className="stat-icon"><Repeat size={24}/></div>
+              <div className="stat-label">Items reused</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon"><Banknote size={24}/></div>
+              <div className="stat-label">Money saved</div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon"><HomeIcon size={24}/></div>
+              <div className="stat-label">Student communities</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FINAL CTA */}
+      <section className="final-cta-section section-padding">
+        <div className="cta-container">
+          <h2>Your next useful item might already be nearby.</h2>
+          <p>Stop buying things you'll barely use. Find, borrow, rent, and reuse with SWAPIFY.</p>
+          <div className="cta-actions">
+            <button className="btn btn-primary btn-large">Explore Items</button>
+            <button className="btn btn-secondary btn-large">Join SWAPIFY</button>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer className="footer">
+        <div className="footer-top">
+          <div className="footer-brand">
+            <div className="logo-container">
+              <div className="logo-icon">
+                <ArrowRightLeft strokeWidth={2.5} size={24} />
+              </div>
+              <span className="logo-text">SWAPIFY</span>
+            </div>
+            <p>Find what you need. Share what you don't.</p>
+          </div>
+          <div className="footer-links">
+            <div className="link-column">
+              <h4>Product</h4>
+              <a href="#">Explore</a>
+              <a href="#">Categories</a>
+              <a href="#">How It Works</a>
+              <a href="#">Create Request</a>
+            </div>
+            <div className="link-column">
+              <h4>Community</h4>
+              <a href="#">Trust & Safety</a>
+              <a href="#">Reviews</a>
+              <a href="#">List an Item</a>
+            </div>
+            <div className="link-column">
+              <h4>Support</h4>
+              <a href="#">Help</a>
+              <a href="#">Contact</a>
+              <a href="#">Terms</a>
+              <a href="#">Privacy</a>
+            </div>
+          </div>
+        </div>
+        <div className="footer-bottom">
+          <p>© 2026 SWAPIFY</p>
+        </div>
+      </footer>
     </div>
   );
 }
